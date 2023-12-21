@@ -44,7 +44,7 @@ for i in sandwicensis_gff:
         sandwicensis_dist.append(name + coords + ltr_identity)
 
 
-orthogroups = open("Orthogroups_noheader.tsv")
+orthogroups = open("Orthogroups.txt")
 orthogroups = orthogroups.readlines()
 
 orthogroup_distances = open("orthogroup_distances.tsv", "a")
@@ -55,10 +55,11 @@ orthogroup_distances = open("orthogroup_distances.tsv", "a")
 
 
 for orthogroup in orthogroups:
- line = orthogroup.split("\t")
+ orthogroup = orthogroup.rstrip("\n")
+ line = orthogroup.split(" ")
  line = [i for i in line if i]
- orthogroup = line[0]
- yahouensis_TEs = [i for i in line[1].split(", ") if i.startswith("yahouensis")]
+ orthogroup = line[0].rstrip(":")
+ yahouensis_TEs = [i for i in line[1:] if i.startswith("yahouensis")]
  yahouensis_TEs = [i.lstrip("yahouensis_") for i in yahouensis_TEs]
  identified_tes = [i for i in yahouensis_TEs if i.startswith("TE_")]
  unidentified_tes = [i for i in yahouensis_TEs if not i.startswith("TE_")]
@@ -67,25 +68,27 @@ for orthogroup in orthogroups:
      start = name.split(":")[1].split("..")[0]
      end = name.split(":")[1].split("..")[1]
      unidentified_dist = ["yahouensis", orthogroup] + [i for i in yahouensis_dist if i[0:3] == [name, start, end]][0]
-     print(unidentified_dist)
      orthogroup_distances.write("\t".join(unidentified_dist) + "\n")
 
  for i in identified_tes:
      name = i.split("|")[0]
      start = i.split("|")[1].split("#")[0].split("_")[1].split("..")[0]
      end = i.split("|")[1].split("#")[0].split("_")[1].split("..")[1]
-     identified_dist = [["yahouensis", orthogroup] + [i for i in yahouensis_dist if i[0:3] == [name, start, end]][0]]
+     identified_dist = ["yahouensis", orthogroup] + [i for i in yahouensis_dist if i[0:3] == [name, start, end]][0]
+     orthogroup_distances.write("\t".join(identified_dist) + "\n")
 
- 
+
 ##################################
 #           IMPOLITA           #
 ##################################
 
+
 for orthogroup in orthogroups:
- line = orthogroup.split("\t")
+ orthogroup = orthogroup.rstrip("\n")
+ line = orthogroup.split(" ")
  line = [i for i in line if i]
- orthogroup = line[0]
- impolita_TEs = [i for i in line[1].split(", ") if i.startswith("impolita")]
+ orthogroup = line[0].rstrip(":")
+ impolita_TEs = [i for i in line[1:] if i.startswith("impolita")]
  impolita_TEs = [i.lstrip("impolita_") for i in impolita_TEs]
  identified_tes = [i for i in impolita_TEs if i.startswith("TE_")]
  unidentified_tes = [i for i in impolita_TEs if not i.startswith("TE_")]
@@ -93,14 +96,16 @@ for orthogroup in orthogroups:
      name = i.split("#")[0].replace("_", ":")
      start = name.split(":")[1].split("..")[0]
      end = name.split(":")[1].split("..")[1]
-     unidentified_dist = [["impolita", orthogroup] + [i for i in impolita_dist if i[0:3] == [name, start, end]][0]]
-     print(unidentified_dist)
+     unidentified_dist = ["impolita", orthogroup] + [i for i in impolita_dist if i[0:3] == [name, start, end]][0]
+     orthogroup_distances.write("\t".join(unidentified_dist) + "\n")
  for i in identified_tes:
      name = i.split("|")[0]
      start = i.split("|")[1].split("#")[0].split("_")[1].split("..")[0]
      end = i.split("|")[1].split("#")[0].split("_")[1].split("..")[1]
-     identified_dist = [["impolita", orthogroup] + [i for i in impolita_dist if i[0:3] == [name, start, end]][0]]
+     identified_dist = ["impolita", orthogroup] + [i for i in impolita_dist if i[0:3] == [name, start, end]][0]
+     orthogroup_distances.write("\t".join(identified_dist) + "\n")
 
+orthogroup_distances.close()
 
 ##################################
 #           SANDWICENSIS           #
@@ -116,19 +121,30 @@ for orthogroup in orthogroups:
  identified_tes = [i for i in sandwicensis_TEs if i.startswith("TE_")]
  unidentified_tes = [i for i in sandwicensis_TEs if not i.startswith("TE_")]
  for i in unidentified_tes:
+     # need to do this to allow proper reformatting of the colon, will undo in following lines
+     i = i.replace("Scaffolds_", "Scaffolds")
      name = i.split("#")[0].replace("_", ":")
+     name = name.replace("Scaffolds", "Scaffolds_")
      start = name.split(":")[1].split("..")[0]
      end = name.split(":")[1].split("..")[1]
-     unidentified_dist = [["sandwicensis", orthogroup] + [i for i in sandwicensis_dist if i[0:3] == [name, start, end]][0]]
-     print(unidentified_dist)
+     unidentified_dist_attempt = [i for i in sandwicensis_dist if i[0:3] == [name, start, end]]
+     if unidentified_dist_attempt:
+         unidentified_dist = ["sandwicensis", orthogroup] + unidentified_dist_attempt[0]
+         orthogroup_distances.write("\t".join(unidentified_dist) + "\n")
  for i in identified_tes:
+     i = i.replace("Scaffolds_", "Scaffolds")
      name = i.split("|")[0]
      start = i.split("|")[1].split("#")[0].split("_")[1].split("..")[0]
      end = i.split("|")[1].split("#")[0].split("_")[1].split("..")[1]
-     identified_dist = [["sandwicensis", orthogroup] + [i for i in sandwicensis_dist if i[0:3] == [name, start, end]][0]]
+     print(i)
+     print(name)
+     print(start)
+     print(end)
+     identified_dist_attempt = [i for i in sandwicensis_dist if i[0:3] == [name, start, end]]
+     if identified_dist_attempt:
+         identified_dist = ["sandwicensis", orthogroup] + identified_dist_attempt[0]
+         orthogroup_distances.write("\t".join(identified_dist) + "\n")
 
-
-
-
+orthogroup_distances.close()
 
 
