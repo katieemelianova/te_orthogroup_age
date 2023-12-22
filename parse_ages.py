@@ -105,7 +105,6 @@ for orthogroup in orthogroups:
      identified_dist = ["impolita", orthogroup] + [i for i in impolita_dist if i[0:3] == [name, start, end]][0]
      orthogroup_distances.write("\t".join(identified_dist) + "\n")
 
-orthogroup_distances.close()
 
 ##################################
 #           SANDWICENSIS           #
@@ -113,10 +112,11 @@ orthogroup_distances.close()
 
 
 for orthogroup in orthogroups:
- line = orthogroup.split("\t")
+ orthogroup = orthogroup.rstrip("\n")
+ line = orthogroup.split(" ")
  line = [i for i in line if i]
- orthogroup = line[0]
- sandwicensis_TEs = [i for i in line[1].split(", ") if i.startswith("sandwicensis")]
+ orthogroup = line[0].rstrip(":")
+ sandwicensis_TEs = [i for i in line[1:] if i.startswith("sandwicensis")]
  sandwicensis_TEs = [i.lstrip("sandwicensis_") for i in sandwicensis_TEs]
  identified_tes = [i for i in sandwicensis_TEs if i.startswith("TE_")]
  unidentified_tes = [i for i in sandwicensis_TEs if not i.startswith("TE_")]
